@@ -1,0 +1,75 @@
+#include <iostream>
+#include <cmath> 
+using namespace std;
+
+double funcion(double num) {
+    // La funcion segun necesitemos se cambia
+    return pow (num,2) - 5;
+}
+
+double regula_falsi(double xa, double xb) {
+    // Fórmula de regula falsi
+    double fa = funcion(xa);
+    double fb = funcion(xb);
+    double xm = xb - (fb * (xb - xa)) / (fb - fa);
+    return xm;
+}
+
+double calcular_error(double xm_actual, double xm_anterior) {
+    if (xm_anterior == 0) return 100.0; //Primera iteración como no hay error aun le pongo 100
+    return abs((xm_actual - xm_anterior) / xm_actual) * 100;
+}
+
+int main() {
+    // Valores del intervalo (
+    double xa = 2;
+    double xb = 3;
+    double xm_anterior = 0;
+    int cont = 0;
+
+    // Verificar que hay cambio de signo 
+    if (funcion(xa) * funcion(xb) >= 0) {
+        cout << "Error: No hay raíz en el intervalo [" << xa << ", " << xb << "]" << endl;
+        cout << "f(" << xa << ") = " << funcion(xa) << endl;
+        cout << "f(" << xb << ") = " << funcion(xb) << endl;
+        return 1;
+    }
+    
+    cout << "Metodo de Regula Falsi" << endl;
+    cout << "Intervalo inicial: [" << xa << ", " << xb << "]" << endl;
+    
+    
+    while (cont < 4) {
+        double xm = regula_falsi(xa, xb);
+        double fm = funcion(xm);
+        
+        // Calcular error
+        double error_porcentual = calcular_error(xm, xm_anterior);
+        
+        cout << "Iteracion " << cont + 1 << endl;
+        cout << "  xa = " << xa << ", xb = " << xb << endl;
+        cout << "  f(xa) = " << funcion(xa) << ", f(xb) = " << funcion(xb) << endl;
+        cout << "  xm = " << xm << endl;
+        cout << "  f(xm) = " << fm << endl;
+        cout << "  Error = " << error_porcentual << "%" << endl;
+        
+        // Actualizar intervalo según el signo 
+        if (funcion(xa) * fm < 0) {
+            xb = xm;  // La raíz está entre xa y xm
+            cout << "  -> Raiz en [xa, xm]" << endl;
+        } else {
+            xa = xm;  // La raíz está entre xm y xb
+            cout << "  -> Raiz en [xm, xb]" << endl;
+        }
+        
+        xm_anterior = xm;
+        cont++;
+        cout << endl;
+  
+    }
+    
+    cout << "Raiz aproximada: " << regula_falsi(xa, xb) << endl;
+    cout << "Valor de f(raiz): " << funcion(regula_falsi(xa, xb)) << endl;
+    
+    return 0;
+}
