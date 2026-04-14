@@ -1,0 +1,60 @@
+#include <iostream>
+#include <cmath> 
+using namespace std;
+
+double semisuma  (double xa, double xb){
+    //aca se sca la semisuma para xm
+    double semsum = (xa+xb)/2;
+    
+    return semsum;
+}
+
+double funcion (double num ){
+    //aca depedende de la funcion se debe cambiar
+    //aca se saca f(xm)
+    double result = pow (num,4)*num - 8*pow(num,2)- 5;
+    return result;
+}
+
+int main()
+{
+    double xa = 0, xb = 7;
+    double xm_anterior = xa;
+    int cont = 0;
+    
+    cout << "Metodo de Biseccion" << endl;
+    cout << "Intervalo inicial: [" << xa << ", " << xb << "]" << endl << endl;
+    
+    // Se cambia el numero segun el numero de intervalos
+    while (cont < 5) {  
+        double xm = semisuma(xa, xb);
+        double fm = funcion(xm);
+        
+        // Calcular error relativo
+        double error_porcentual = 100.0;
+        if (cont > 0) {
+            error_porcentual = abs((xm - xm_anterior) / xm) * 100;
+        }
+        
+        cout << "Iteracion " << cont + 1 << endl;
+        cout << "  xa = " << xa << ", xb = " << xb << endl;
+        cout << "  xm = " << xm << endl;
+        cout << "  f(xm) = " << fm << endl;
+        cout << "  Error = " << error_porcentual << "%" << endl;
+        
+        if (funcion(xa) * fm < 0) {
+            xb = xm;  // La raíz está en la mitad izquierda
+        } else {
+            xa = xm;  // La raíz está en la mitad derecha
+        }
+        
+        //cambio de intervalo
+        xm_anterior = xm;
+        cont++;
+        cout << endl;
+    }
+    
+    cout << "Raiz aproximada: " << semisuma(xa, xb) << endl;
+
+    return 0;
+}
