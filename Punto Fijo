@@ -1,0 +1,43 @@
+#include <iostream>
+#include <cmath> 
+using namespace std;
+
+// Función de iteración g(x) para punto fijo
+// Primero encontrar g(x)
+double g(double x) {
+    return (pow(x, 3) - 9) / 4;
+}
+
+// Función original
+double f(double x) {
+    return pow(x, 3) - (4 * x) - 9;
+}
+
+double error(double x_actual, double x_anterior) {
+    return abs((x_actual - x_anterior) / x_actual) * 100;
+}
+
+int main() {
+    double x_anterior = 2.5;  // valor inicial
+    double x_actual;
+    int cont = 0;
+    
+    cout << "Metodo de Punto Fijo" << endl;
+    
+    while (cont < 10) {
+        x_actual = g(x_anterior);
+        double err = error(x_actual, x_anterior);
+        
+        cout << "Iteracion " << cont + 1 << ": ";
+        cout << "x = " << x_actual;
+        cout << ", f(x) = " << f(x_actual);
+        cout << ", Error = " << err << "%" << endl;
+        
+        x_anterior = x_actual;
+        cont++;
+    }
+    
+    cout << "\nRaiz aproximada: " << x_actual << endl;
+    
+    return 0;
+}
