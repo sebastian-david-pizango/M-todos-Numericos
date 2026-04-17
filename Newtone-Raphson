@@ -1,0 +1,48 @@
+#include <iostream>
+#include <cmath> 
+using namespace std;
+
+// Función original
+//Se puede cambiar segun se necesite
+double funcion(double x) {
+    return pow(x, 3) - (4 * x) - 9;
+}
+
+// Derivada de la funcion
+double derivada(double x) {
+    return 3 * pow(x, 2) - 4;
+}
+
+// Fórmula de Newton-Raphson
+double newton(double x) {
+    return x - (funcion(x) / derivada(x));
+}
+
+double error(double x_actual, double x_anterior) {
+    return abs((x_actual - x_anterior) / x_actual) * 100;
+}
+
+int main() {
+    double x_anterior = 2.5;  // Valor inicial
+    double x_actual;
+    int cont = 0;
+    
+    cout << "Metodo de Newton-Raphson" << endl;
+    
+    while (cont < 10) {
+        x_actual = newton(x_anterior);
+        double err = error(x_actual, x_anterior);
+        
+        cout << "Iteracion " << cont + 1 << ": ";
+        cout << "x = " << x_actual;
+        cout << ", f(x) = " << funcion(x_actual);
+        cout << ", Error = " << err << "%" << endl;
+        
+        x_anterior = x_actual;
+        cont++;
+    }
+    
+    cout << "\nRaiz aproximada: " << x_actual << endl;
+    
+    return 0;
+}
