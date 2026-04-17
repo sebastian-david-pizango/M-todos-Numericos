@@ -1,0 +1,56 @@
+#include <iostream>
+#include <cmath> 
+#include <iomanip>
+using namespace std;
+
+double g(double x) {
+    double e = 2.71828182846;  // Mejor precisión
+    return (1.5 - exp(x))/2;    // Usar exp() en lugar de pow(e,x)
+}
+
+double f(double x) {
+    return exp(x) + 2*x - 1.5;
+}
+
+double error(double x_actual, double x_anterior) {
+    if (x_anterior == 0) return 100;
+    return abs((x_actual - x_anterior) / x_actual) * 100;
+}
+
+int main() {
+    double x_anterior = 0.5;
+    double x_actual;
+    int cont = 0;
+    int max_iter = 10;   
+    // Aumentar iteraciones hasta 10 por un error que si es pequeño se queda en bucle
+    
+    cout << fixed << setprecision(8);
+    cout << "Metodo de Punto Fijo" << endl;
+    cout << "Ecuacion: e^x + 2x - 1.5 = 0" << endl;
+    cout << "g(x) = (1.5 - e^x)/2" << endl;
+    cout << "----------------------------------------" << endl;
+    
+    while (cont < max_iter) {
+        x_actual = g(x_anterior);
+        double err = error(x_actual, x_anterior);
+        
+        cout << "Iteracion " << setw(2) << cont + 1 << ": ";
+        cout << "x = " << x_actual;
+        cout << ", f(x) = " << f(x_actual);
+        cout << ", Error = " << err << "%" << endl;
+        
+        // Criterio de parada por error pequeño
+        if (err < 0.0001 && cont > 0) {
+            cout << "\n¡Convergencia alcanzada!" << endl;
+            break;
+        }
+        
+        x_anterior = x_actual;
+        cont++;
+    }
+    
+    cout << "\nRaiz aproximada: " << x_actual << endl;
+    cout << "Comprobacion f(raiz): " << f(x_actual) << endl;
+    
+    return 0;
+}
