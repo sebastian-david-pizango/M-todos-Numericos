@@ -1,0 +1,146 @@
+#include iostream
+#include cmath
+using namespace std; 
+
+void metodo_LU (int num){
+     Creo las matrices que voy a usar
+    double matriz_og [num][num];
+    double matriz_l [num][num];
+    double matriz_u [num][num];
+    
+    double b[num];  vector de términos independientes
+    double y[num];  vector para resolver Ly = b
+    double x[num];  vector solución
+    
+     Inicializar matrices l y u en 0
+    for (int i = 0; i  num; i++){
+        for (int j = 0; j  num; j++){
+            matriz_l[i][j] = 0;
+            matriz_u[i][j] = 0;
+        }
+    }
+    
+     Relleno la matriz original y el vector b
+    for (int i = 0; i  num; i++){
+        for (int j = 0; j  num; j++){
+            cout  Ingrese el valor de A[  i+1  ][  j+1  ] ;
+            cin  matriz_og[i][j];
+        }
+    }
+    for (int i = 0; i  num; i++){
+        cout  Ingrese b[  i+1  ] ;
+        cin  b[i];
+    }
+    
+     Factorización LU según el tamaño solo para 2x2 y 3x3 porque de 4x4 hacia adelante es mas complejo
+    if (num == 2){
+         Para matriz 2x2
+         U primera fila
+        matriz_u[0][0] = matriz_og[0][0];
+        matriz_u[0][1] = matriz_og[0][1];
+        
+         L primera columna
+        matriz_l[0][0] = 1;
+        matriz_l[1][0] = matriz_og[1][0]  matriz_u[0][0];
+        matriz_l[1][1] = 1;
+        
+         U segunda fila
+        matriz_u[1][1] = matriz_og[1][1] - matriz_l[1][0]  matriz_u[0][1];
+        
+    } 
+    else if (num == 3){
+         Para matriz 3x3
+        
+         U primera fila
+        matriz_u[0][0] = matriz_og[0][0];
+        matriz_u[0][1] = matriz_og[0][1];
+        matriz_u[0][2] = matriz_og[0][2];
+        
+         L primera columna
+        matriz_l[0][0] = 1;
+        matriz_l[1][0] = matriz_og[1][0]  matriz_u[0][0];
+        matriz_l[2][0] = matriz_og[2][0]  matriz_u[0][0];
+        
+         U segunda fila
+        matriz_u[1][1] = matriz_og[1][1] - matriz_l[1][0]  matriz_u[0][1];
+        matriz_u[1][2] = matriz_og[1][2] - matriz_l[1][0]  matriz_u[0][2];
+        
+         L segunda columna
+        matriz_l[1][1] = 1;
+        matriz_l[2][1] = (matriz_og[2][1] - matriz_l[2][0]  matriz_u[0][1])  matriz_u[1][1];
+        
+         U tercera fila
+        matriz_u[2][2] = matriz_og[2][2] - matriz_l[2][0]  matriz_u[0][2] - matriz_l[2][1]  matriz_u[1][2];
+        matriz_l[2][2] = 1;
+    }
+    
+     Mostrar matrices L y U
+    cout  n=== MATRIZ L ===  endl;
+    for (int i = 0; i  num; i++){
+        for (int j = 0; j  num; j++){
+            cout  matriz_l[i][j]  t;
+        }
+        cout  endl;
+    }
+    
+    cout  La matriz u  endl;
+    for (int i = 0; i  num; i++){
+        for (int j = 0; j  num; j++){
+            cout  matriz_u[i][j]  t;
+        }
+        cout  endl;
+    }
+    
+     Verificar si la factorización es correcta
+    double verificacion[num][num];
+    for (int i = 0; i  num; i++){
+        for (int j = 0; j  num; j++){
+            verificacion[i][j] = 0;
+            for (int k = 0; k  num; k++){
+                verificacion[i][j] += matriz_l[i][k]  matriz_u[k][j];
+            }
+            cout  verificacion[i][j]  t;
+        }
+        cout  endl;
+    }
+    
+     Resolver Ly = b (sustitución hacia adelante)
+    for (int i = 0; i  num; i++){
+        double suma = 0;
+        for (int j = 0; j  i; j++){
+            suma += matriz_l[i][j]  y[j];
+        }
+        y[i] = b[i] - suma;
+        cout  y[  i+1  ] =   y[i]  endl;
+    }
+    
+     Resolver Ux = y
+    for (int i = num-1; i = 0; i--){
+        double suma = 0;
+        for (int j = i+1; j  num; j++){
+            suma += matriz_u[i][j]  x[j];
+        }
+        x[i] = (y[i] - suma)  matriz_u[i][i];
+        cout  x[  i+1  ] =   x[i]  endl;
+    }
+    
+     Mostrar solución final
+    for (int i = 0; i  num; i++){
+        cout  x  i+1   =   x[i]  endl;
+    }
+}
+
+int main(){
+    cout  Ingrese el tamaño de la matriz cuadrada 2x2 o 3x3 ;
+    int num;
+    cin  num;
+    
+    if (num != 2 && num != 3){
+        cout  Error Solo se permiten matrices 2x2 o 3x3  endl;
+        return 1;
+    }
+    
+    metodo_LU(num);
+    
+    return 0;
+}
