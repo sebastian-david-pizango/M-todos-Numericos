@@ -1,0 +1,95 @@
+#include <iostream>
+#include <cmath>
+using namespace std; 
+
+void eliminacion_gaussiana(int num){
+   
+    // Creo la matriz aumentada 
+    double matriz_aum[num][num+1];
+    double x[num]; // vector solución
+    
+    // Relleno la matriz 
+    for (int i = 0; i < num; i++){
+        for (int j = 0; j < num; j++){
+            cout << "Ingrese el valor de A[" << i+1 << "][" << j+1 << "]: ";
+            cin >> matriz_aum[i][j];
+        }
+    }
+    
+    // relleno vector b
+    for (int i = 0; i < num; i++){
+        cout << "Ingrese b[" << i+1 << "]: ";
+        cin >> matriz_aum[i][num];
+    }
+    
+    // Mostrar matriz aumentada original
+    for (int i = 0; i < num; i++){
+        for (int j = 0; j < num+1; j++){
+            cout << matriz_aum[i][j] << "\t";
+        }
+        cout << endl;
+    }
+    
+    // ELIMINACIÓN GAUSSIANA (sin pivoteo)
+    for (int k = 0; k < num-1; k++){
+        // Verificar si el pivote es cero si es cerro sale el mensaje
+        if (fabs(matriz_aum[k][k]) < 1e-10){
+            cout << "El método puede fallar " << endl;
+        }
+        
+        // Eliminar elementos debajo del pivote
+        for (int i = k+1; i < num; i++){
+            double factor = matriz_aum[i][k] / matriz_aum[k][k];
+            cout << "Multiplicador m[" << i+1 << "][" << k+1 << "] = " << factor << endl;
+            
+            // Actualizar toda la fila
+            for (int j = k; j < num+1; j++){
+                matriz_aum[i][j] = matriz_aum[i][j] - factor * matriz_aum[k][j];
+            }
+        }
+        
+        // Mostrar matriz después de cada paso
+        for (int i = 0; i < num; i++){
+            for (int j = 0; j < num+1; j++){
+                cout << matriz_aum[i][j] << "\t";
+            }
+            cout << endl;
+        }
+        cout << endl;
+    }
+    
+    // Mostrar matriz triangular superior final
+    for (int i = 0; i < num; i++){
+        for (int j = 0; j < num+1; j++){
+            cout << matriz_aum[i][j] << "\t";
+        }
+        cout << endl;
+    }
+    
+    // la sustitucion de los valores
+    for (int i = num-1; i >= 0; i--){
+        double suma = 0;
+        for (int j = i+1; j < num; j++){
+            suma += matriz_aum[i][j] * x[j];
+        }
+        x[i] = (matriz_aum[i][num] - suma) / matriz_aum[i][i];
+        cout << "x" << i+1 << " = " << x[i] << endl;
+    }
+    
+    // solución 
+    for (int i = 0; i < num; i++){
+        cout << "x" << i+1 << " = " << x[i] << endl;
+    }
+    
+   
+}
+
+int main(){
+    cout << "Ingrese el tamaño de la matriz cuadrada: ";
+    int num;
+    cin >> num;
+    
+    eliminacion_gaussiana(num);
+    
+    return 0;
+}

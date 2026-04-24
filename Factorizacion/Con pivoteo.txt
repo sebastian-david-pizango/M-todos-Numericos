@@ -1,0 +1,141 @@
+#include <iostream>
+#include <cmath>
+#include <iomanip>
+using namespace std; 
+
+void eliminacion_gaussiana_pivoteo(int num){
+    // Crear matrices
+    double matriz_original[num][num];
+    double matriz_aum[num][num+1];
+    double x[num];
+    double b_original[num];
+    int intercambios = 0;
+    
+    // Rellenar la matriz y vector
+    for (int i = 0; i < num; i++){
+        for (int j = 0; j < num; j++){
+            cout << "A[" << i+1 << "][" << j+1 << "]: ";
+            cin >> matriz_original[i][j];
+            matriz_aum[i][j] = matriz_original[i][j];
+        }
+        cout << "b[" << i+1 << "]: ";
+        cin >> b_original[i];
+        matriz_aum[i][num] = b_original[i];
+    }
+    
+    // Mostrar matriz aumentada inicial
+    cout << fixed << setprecision(6);
+    for (int i = 0; i < num; i++){
+        for (int j = 0; j < num; j++){
+            cout << setw(12) << matriz_aum[i][j];
+        }
+        cout << " | " << setw(12) << matriz_aum[i][num] << endl;
+    }
+    
+    // ELIMINACIÓN GAUSSIANA CON PIVOTEO PARCIAL
+
+    for (int k = 0; k < num-1; k++){
+        cout << "\n--- Paso " << k+1 << " (Columna " << k+1 << ") ---" << endl;
+        
+        // PIVOTEO PARCIAL: Encontrar el elemento de mayor valor absoluto en la columna k
+        int fila_pivote = k;
+        double max_valor = fabs(matriz_aum[k][k]);
+        
+        for (int i = k+1; i < num; i++){
+            if (fabs(matriz_aum[i][k]) > max_valor){
+                max_valor = fabs(matriz_aum[i][k]);
+                fila_pivote = i;
+            }
+        }
+        
+        // Intercambiar filas si es necesario
+        if (fila_pivote != k){
+            cout << "  Intercambiando fila " << k+1 << " con fila " << fila_pivote+1 << endl;
+            cout << "  (Pivote original: " << matriz_aum[k][k] << ", nuevo pivote: " << matriz_aum[fila_pivote][k] << ")" << endl;
+            
+            for (int j = 0; j < num+1; j++){
+                double temp = matriz_aum[k][j];
+                matriz_aum[k][j] = matriz_aum[fila_pivote][j];
+                matriz_aum[fila_pivote][j] = temp;
+            }
+            intercambios++;
+        } else {
+            cout << "  No se necesita intercambio (pivote = " << matriz_aum[k][k] << ")" << endl;
+        }
+        
+        // Verificar si el pivote es cero (después del pivoteo)
+        if (fabs(matriz_aum[k][k]) < 1e-12){
+            cout << "  ¡ADVERTENCIA! El pivote es prácticamente cero: " << matriz_aum[k][k] << endl;
+            cout << "  El sistema puede ser singular o mal condicionado." << endl;
+        }
+        
+        // Eliminar elementos debajo del pivote
+        for (int i = k+1; i < num; i++){
+            double factor = matriz_aum[i][k] / matriz_aum[k][k];
+            cout << "  m[" << i+1 << "][" << k+1 << "] = " << factor << endl;
+            
+            for (int j = k; j < num+1; j++){
+                matriz_aum[i][j] -= factor * matriz_aum[k][j];
+            }
+        }
+        
+        // Mostrar matriz después del paso
+        cout << "\nMatriz después del paso " << k+1 << ":" << endl;
+        for (int i = 0; i < num; i++){
+            for (int j = 0; j < num; j++){
+                if (fabs(matriz_aum[i][j]) < 1e-12) matriz_aum[i][j] = 0;
+                cout << setw(12) << matriz_aum[i][j];
+            }
+            cout << " | " << setw(12) << matriz_aum[i][num] << endl;
+        }
+    }
+    
+    // Mostrar matriz triangular superior final
+    for (int i = 0; i < num; i++){
+        for (int j = 0; j < num; j++){
+            if (j < i)
+                cout << setw(12) << "0";
+            else
+                cout << setw(12) << matriz_aum[i][j];
+        }
+        cout << " | " << setw(12) << matriz_aum[i][num] << endl;
+    }
+    
+    // sustitucion
+    for (int i = num-1; i >= 0; i--){
+        double suma = 0;
+        for (int j = i+1; j < num; j++){
+            suma += matriz_aum[i][j] * x[j];
+        }
+        if (fabs(matriz_aum[i][i]) < 1e-12){
+            cout << "¡ERROR! Elemento diagonal cero en fila " << i+1 << endl;
+            cout << "El sistema no tiene solución única." << endl;
+            return;
+        }
+        x[i] = (matriz_aum[i][num] - suma) / matriz_aum[i][i];
+        cout << "x" << i+1 << " = " << x[i] << endl;
+    }
+    
+    // solución
+    for (int i = 0; i < num; i++){
+        cout << "x" << i+1 << " = " << setprecision(8) << x[i] << endl;
+    }
+    
+   
+}
+
+int main(){
+
+    int num;
+    cout << "\nIngrese el tamaño de la matriz maximo 10x10: ";
+    cin >> num;
+    
+    if (num <= 0 || num > 10){
+        cout << "Tamaño no válido. Debe estar entre 1 y 10." << endl;
+        return 1;
+    }
+    
+    eliminacion_gaussiana_pivoteo(num);
+    
+    return 0;
+}
