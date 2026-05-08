@@ -1,0 +1,185 @@
+#include <iostream>
+#include <cmath>
+#include <iomanip>
+#include <vector>
+using namespace std;
+
+void metodo_jacobi(int num, double tolerancia, int max_iteraciones){
+    // Crear matrices y vectores
+    double matriz_original[num][num];
+    double b_original[num];
+    double x_actual[num];
+    double x_nuevo[num];
+    double x_inicial[num];
+    
+    // Rellenar la matriz y vector b
+    for (int i = 0; i < num; i++){
+        for (int j = 0; j < num; j++){
+            cout << "A[" << i+1 << "][" << j+1 << "]: ";
+            cin >> matriz_original[i][j];
+        }
+        cout << "b[" << i+1 << "]: ";
+        cin >> b_original[i];
+    }
+    
+    // Verificar si la matriz es diagonalmente dominante
+    bool es_diag_dominante = true;
+    for (int i = 0; i < num; i++){
+        double suma_fila = 0;
+        for (int j = 0; j < num; j++){
+            if (j != i){
+                suma_fila += fabs(matriz_original[i][j]);
+            }
+        }
+        cout << "Fila " << i+1 << ": |a" << i+1 << i+1 << "| = " << fabs(matriz_original[i][i]);
+        cout << " ≥ Suma = " << suma_fila;
+        
+        if (fabs(matriz_original[i][i]) >= suma_fila){
+            cout << " ✓" << endl;
+        } else {
+            cout << " ✗" << endl;
+            es_diag_dominante = false;
+        }
+    }
+    
+    if (!es_diag_dominante){
+        cout << "\n⚠ ADVERTENCIA: La matriz NO es diagonalmente dominante" << endl;
+        cout << "El método de Jacobi puede no converger o converger lentamente." << endl;
+        
+        char continuar;
+        cout << "¿Desea continuar de todas formas? (s/n): ";
+        cin >> continuar;
+        if (continuar != 's' && continuar != 'S'){
+            cout << "Programa terminado." << endl;
+            return;
+        }
+    } else {
+        cout << "\n✓ La matriz es diagonalmente dominante. Convergencia garantizada." << endl;
+    }
+    
+    // Ingresar aproximación inicial
+    cout << "Ingrese el vector inicial x^(0):" << endl;
+    for (int i = 0; i < num; i++){
+        cout << "x" << i+1 << " = ";
+        cin >> x_inicial[i];
+        x_actual[i] = x_inicial[i];
+    }
+    
+    // Mostrar formato de salida
+    cout << fixed << setprecision(8);
++    cout << "Tolerancia: " << tolerancia << endl;
+    cout << "Máximo de iteraciones: " << max_iteraciones << endl;
+    
+    cout << "\nIteración\t";
+    for (int i = 0; i < num; i++){
+        cout << "x" << i+1 << "\t\t";
+    }
+    cout << "Error máximo" << endl;
+    cout << string(80, '-') << endl;
+    
+    // Mostrar iteración 0
+    cout << "0\t\t";
+    for (int i = 0; i < num; i++){
+        cout << x_actual[i] << "\t";
+    }
+    cout << "---" << endl;
+    
+    // PROCESO ITERATIVO DE JACOBI
+    int iteracion = 1;
+    double error_max;
+    double tolerancia_real = tolerancia;
+    
+    while (iteracion <= max_iteraciones){
+        error_max = 0;
+        
+        // Calcular nuevos valores usando la fórmula de Jacobi
+        for (int i = 0; i < num; i++){
+            double suma = 0;
+            for (int j = 0; j < num; j++){
+                if (j != i){
+                    suma += matriz_original[i][j] * x_actual[j];
+                }
+            }
+            x_nuevo[i] = (b_original[i] - suma) / matriz_original[i][i];
+            
+            // Calcular error para esta variable
+            double error = fabs(x_nuevo[i] - x_actual[i]);
+            if (error > error_max){
+                error_max = error;
+            }
+        }
+        
+        // Mostrar resultados de la iteración actual
+        cout << iteracion << "\t\t";
+        for (int i = 0; i < num; i++){
+            cout << x_nuevo[i] << "\t";
+        }
+        cout << error_max << endl;
+        
+        // Verificar convergencia
+        if (error_max < tolerancia_real){
+            cout << "\n✓ CONVERGENCIA ALCANZADA en " << iteracion << " iteraciones" << endl;
+            break;
+        }
+        
+        // Actualizar valores para la siguiente iteración
+        for (int i = 0; i < num; i++){
+            x_actual[i] = x_nuevo[i];
+        }
+        
+        iteracion++;
+    }
+    
+    if (iteracion > max_iteraciones){
+        cout << "\n Se alcanzó el máximo de iteraciones (" << max_iteraciones << ")" << endl;
+        cout << "El método no convergió dentro de la tolerancia especificada." << endl;
+    }
+    
+    // MOSTRAR SOLUCIÓN FINAL
+  
+    for (int i = 0; i < num; i++){
+        cout << "x" << i+1 << " = " << setprecision(10) << x_nuevo[i] << endl;
+    }
+    
+    // VERIFICACIÓN
+    cout << "\n=== VERIFICACIÓN (A*x ≈ b) ===" << endl;
+    double error_max_residuo = 0;
+    for (int i = 0; i < num; i++){
+        double suma = 0;
+        for (int j = 0; j < num; j++){
+            suma += matriz_original[i][j] * x_nuevo[j];
+        }
+        double residuo = fabs(suma - b_original[i]);
+        cout << "Ecuación " << i+1 << ": " << setprecision(8) << suma;
+        cout << " ≈ " << b_original[i] << "  (Residuo: " << residuo << ")" << endl;
+        if (residuo > error_max_residuo) error_max_residuo = residuo;
+    }
+    
+    cout << "\n--- ESTADÍSTICAS ---" << endl;
+    cout << "Iteraciones realizadas: " << iteracion << endl;
+    cout << "Error final: " << error_max << endl;
+    cout << "Residuo máximo: " << error_max_residuo << endl;
+}
+
+int main(){
+    int num;
+    cout << "\nIngrese el tamaño de la matriz (máx 10): ";
+    cin >> num;
+    
+    if (num <= 0 || num > 10){
+        cout << "Tamaño no válido. Debe estar entre 1 y 10." << endl;
+        return 1;
+    }
+    
+    double tolerancia;
+    cout << "Ingrese la tolerancia (ejemplo: 0.0001): ";
+    cin >> tolerancia;
+    
+    int max_iteraciones;
+    cout << "Ingrese el máximo de iteraciones (ejemplo: 100): ";
+    cin >> max_iteraciones;
+    
+    metodo_jacobi(num, tolerancia, max_iteraciones);
+    
+    return 0;
+}
