@@ -1,0 +1,122 @@
+#include <iostream>
+#include <vector>
+#include <cmath>
+using namespace std;
+
+// Estructura para almacenar los resultados
+struct ResultadoRegresion {
+    double b0;  // Intercepto
+    double b1;  // Pendiente
+    double mse; // Error Cuadrático Medio
+};
+
+// Función para calcular la suma de un vector
+double sumar_vector(const vector<double>& v) {
+    double suma = 0;
+    for (int i = 0; i < v.size(); i++) {
+        suma += v[i];
+    }
+    return suma;
+}
+
+// Función para calcular el producto punto de dos vectores
+double producto_punto(const vector<double>& v1, const vector<double>& v2) {
+    double suma = 0;
+    for (int i = 0; i < v1.size(); i++) {
+        suma += v1[i] * v2[i];
+    }
+    return suma;
+}
+
+// Función principal de regresión lineal (mínimos cuadrados)
+ResultadoRegresion regresion_lineal(const vector<double>& x, const vector<double>& y) {
+    int n = x.size();
+    
+    // Calcular sumatorias necesarias
+    double sum_x = sumar_vector(x);
+    double sum_y = sumar_vector(y);
+    double sum_xy = producto_punto(x, y);
+    double sum_x2 = producto_punto(x, x);
+    
+    // Calcular coeficientes usando fórmulas de mínimos cuadrados
+    // b1 = (n*Σxy - Σx*Σy) / (n*Σx² - (Σx)²)
+    double b1 = (n * sum_xy - sum_x * sum_y) / (n * sum_x2 - pow(sum_x, 2));
+    
+    // b0 = (Σy - b1*Σx) / n
+    double b0 = (sum_y - b1 * sum_x) / n;
+    
+    // Calcular el Error Cuadrático Medio (MSE)
+    double suma_errores = 0;
+    for (int i = 0; i < n; i++) {
+        double y_pred = b0 + b1 * x[i];  // Valor predicho
+        double error = y[i] - y_pred;     // Error
+        suma_errores += pow(error, 2);    // Error al cuadrado
+    }
+    double mse = suma_errores / n;
+    
+    ResultadoRegresion resultado;
+    resultado.b0 = b0;
+    resultado.b1 = b1;
+    resultado.mse = mse;
+    
+    return resultado;
+}
+
+// Función para hacer predicciones
+double predecir(double x, double b0, double b1) {
+    return b0 + b1 * x;
+}
+
+int main() {
+    cout << "Formula: W = (X^T X)^{-1} X^T Y" << endl << endl;
+    
+    // Datos de ejemplo (relación lineal: y = 2x + 1 + ruido)
+    vector<double> x = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    vector<double> y = {3.1, 5.2, 7.0, 9.3, 10.8, 13.1, 14.9, 17.2, 18.7, 21.0};
+    
+    cout << "Datos de entrenamiento:" << endl;
+    cout << "   x: ";
+    for (int i = 0; i < x.size(); i++) {
+        cout << x[i] << " ";
+    }
+    cout << endl;
+    cout << "   y: ";
+    for (int i = 0; i < y.size(); i++) {
+        cout << y[i] << " ";
+    }
+    cout << endl << endl;
+    
+    // Aplicar regresión lineal
+    ResultadoRegresion reg = regresion_lineal(x, y);
+    
+    cout << "  Ecuacion: y = " << reg.b0 << " + " << reg.b1 << " * x" << endl;
+    cout << "  Error Cuadratico Medio (MSE) = " << reg.mse << endl << endl;
+    
+    // Mostrar predicciones vs valores reales
+    double suma_errores = 0;
+    for (int i = 0; i < x.size(); i++) {
+        double y_pred = predecir(x[i], reg.b0, reg.b1);
+        double error = y[i] - y_pred;
+        double error_cuad = pow(error, 2);
+        suma_errores += error_cuad;
+        
+        cout << "  x=" << x[i] << " | real=" << y[i] 
+             << " | pred=" << y_pred 
+             << " | error=" << error 
+             << " | error²=" << error_cuad << endl;
+    }
+    
+    cout << "  MSE calculado directamente: " << suma_errores / x.size() << endl;
+    cout << "  MSE del resultado: " << reg.mse << endl;
+    
+    // Predicciones nuevas
+    double x_nuevo = 11;
+    double y_nuevo = predecir(x_nuevo, reg.b0, reg.b1);
+    cout << "  Para x = " << x_nuevo << " -> y = " << y_nuevo << endl;
+    
+    x_nuevo = 12;
+    y_nuevo = predecir(x_nuevo, reg.b0, reg.b1);
+    cout << "  Para x = " << x_nuevo << " -> y = " << y_nuevo << endl;
+    
+    return 0;
+}
